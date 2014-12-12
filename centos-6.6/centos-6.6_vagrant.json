@@ -1,0 +1,48 @@
+{
+  "variables": {
+    "version": "{{env `VERSION`}}"
+  },
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "sudo {{.Vars}} sh {{.Path}}",
+      "scripts": [
+        "../scripts/chef.sh",
+        "../scripts/vagrant.sh",
+        "../scripts/redhat_vmware_vmtools.sh"
+      ]
+    }
+  ],
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "iso_url": "http://mirror.rackspace.com/CentOS/6.6/isos/x86_64/CentOS-6.6-x86_64-netinstall.iso",
+      "iso_checksum": "2560335ef975907799251ae9d6a0fa2e4d289704",
+      "iso_checksum_type": "sha1",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "disk_size": "100000",
+      "tools_upload_flavor": "linux",
+      "guest_os_type": "centos-64",
+      "headless": "true",
+      "shutdown_command": "sudo /sbin/halt -p",
+      "http_directory": "./http",
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ],
+      "vmx_data": {
+        "memsize": "512",
+        "numvcpus": "1",
+        "vhv.enable": "TRUE",
+        "ethernet0.connectionType": "nat",
+        "ethernet1.connectionType": "nat"
+      }
+    }
+  ],
+  "post-processors": [
+  {
+    "type": "vagrant",
+    "output": "centos-6.6-x86_64-vmware.box"
+  }
+  ]
+}
